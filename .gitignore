@@ -1,0 +1,25 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+/.vscode/
+/_work/
+.DS_Store
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+.kotlin/
+/kotlin-js-store
+/*.apk
+*.keystore
+*.jks
+
+# 反编译与备份产物（体积大、文件数多，不参与版本管理）
+/原生折射版/
+/手机旧版液态玻璃基线/
+/*.zip
+
+# 内部工作文档，不公开
+/C17-AI续写提示词.md

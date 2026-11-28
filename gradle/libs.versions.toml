@@ -1,0 +1,23 @@
+[versions]
+agp = "9.3.2"
+kotlin = "2.4.10"
+compose = "1.12.0"
+kyantShapes = "1.2.1"
+activity = "1.13.0"
+core = "1.19.0"
+coroutines = "1.9.0"
+xposedApi = "101.0.1"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
+compose-foundation = { group = "org.jetbrains.compose.foundation", name = "foundation", version.ref = "compose" }
+compose-ui = { group = "org.jetbrains.compose.ui", name = "ui", version.ref = "compose" }
+compose-ui-graphics = { group = "org.jetbrains.compose.ui", name = "ui-graphics", version.ref = "compose" }
+kyant-shapes = { group = "io.github.kyant0", name = "shapes", version.ref = "kyantShapes" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+libxposed-api = { group = "io.github.libxposed", name = "api", version.ref = "xposedApi" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
