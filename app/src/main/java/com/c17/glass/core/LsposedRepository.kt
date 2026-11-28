@@ -300,22 +300,6 @@ object LsposedRepository {
             .forEach { runCatching { it.delete() } }
     }
 
-    /** 检测模块 APK 是否已真正加载进目标进程（钩子是否注入）。无法检测时返回 null。 */
-    suspend fun isModuleLoadedIn(context: Context, packageName: String): Boolean? =
-        withContext(Dispatchers.IO) {
-            val apkPath = runCatching {
-                context.packageManager.getApplicationInfo(context.packageName, 0).sourceDir
-            }.getOrNull() ?: return@withContext null
-            val pid = RootShell.exec("pidof $packageName", 4_000L).stdout.trim()
-                .split(' ').firstOrNull()
-            if (pid.isNullOrBlank() || !pid.all(Char::isDigit)) return@withContext null
-            val count = RootShell.exec(
-                "grep -c '$apkPath' /proc/$pid/maps 2>/dev/null || true",
-                4_000L
-            ).stdout.trim().toIntOrNull() ?: return@withContext null
-            count > 0
-        }
-
     /** 重启系统界面与系统桌面进程，让两个作用域重新注入。 */
     suspend fun restartSystemUi(): ShellResult {
         SafetyManager.cancelWatchForManualRestart()

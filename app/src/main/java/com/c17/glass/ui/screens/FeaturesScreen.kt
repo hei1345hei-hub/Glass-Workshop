@@ -789,7 +789,7 @@ private fun ApplyCard(
             if (needsUiRestart) {
                 "检测到模块已更新：点击写入配置并同时重启系统界面与系统桌面（90 秒冷却，防 LSPosed 安全模式）。"
             } else {
-                "点击写入配置并热重载参数，实时生效；模块更新或检测到作用域进程未加载模块时，才重启对应进程。"
+                "点击写入配置并同时重启系统界面与系统桌面，两个作用域一起加载玻璃（90 秒冷却防安全模式）。"
             },
             style = TextStyle(
                 color = if (needsUiRestart) colors.warn else colors.inkDim,

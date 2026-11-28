@@ -96,7 +96,8 @@ object TweakEngine {
     suspend fun apply(
         config: TweakConfig,
         before: TweakConfig? = null,
-        changed: List<String> = emptyList()
+        changed: List<String> = emptyList(),
+        restartLauncher: Boolean = true
     ): Boolean {
         LogRepository.log(
             LogLevel.CMD,
@@ -178,8 +179,7 @@ object TweakEngine {
 
         val prevLauncherGlassEnabled = before != null && (before.glassFolders || before.glassDock || before.applyGlobally)
         val nextLauncherGlassEnabled = config.glassFolders || config.glassDock || config.applyGlobally
-        TweakState.lastApplyRestartedLauncher = false
-        if (writeResult.ok && (
+        if (restartLauncher && writeResult.ok && (
                 !hadActiveConfigFile ||
                     before == null ||
                     changed.isEmpty() ||
@@ -190,7 +190,6 @@ object TweakEngine {
                 )
         ) {
             RootShell.exec(C17Commands.RESTART_LAUNCHER, 8_000L)
-            TweakState.lastApplyRestartedLauncher = true
         }
 
         val systemUiAlive = if (!writeResult.ok) {
@@ -207,7 +206,7 @@ object TweakEngine {
             LogRepository.log(
                 LogLevel.INFO,
                 "配置已同步（SystemUI 参数热重载）",
-                "SystemUI 不主动重启（避免触发 LSPosed 安全模式）；参数已热重载，如确需重启可用首页「重启系统作用域」"
+                "SystemUI 不主动重启（避免触发 LSPosed 安全模式）；配置已写入，作用域重启由调用方统一执行"
             )
             true
         }

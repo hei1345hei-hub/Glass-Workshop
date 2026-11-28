@@ -84,7 +84,7 @@ class C17GlassModule : XposedModule() {
 
     companion object {
         /** 必须与 build.gradle.kts 的 versionName 保持一致，仅用于日志标识。 */
-        const val VERSION_NAME = "1.0.23"
+        const val VERSION_NAME = "1.0.24"
         const val SYSTEMUI_PACKAGE = "com.android.systemui"
         const val LAUNCHER_PACKAGE = "com.android.launcher"
     }

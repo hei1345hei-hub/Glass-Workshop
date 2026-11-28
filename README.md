@@ -33,14 +33,14 @@
 
 ## 下载与安装
 
-1. 打开 [Releases](https://github.com/hei1345hei-hub/Glass-Workshop/releases/latest)，下载最新版 `C17-Glass-Workshop-v1.0.23.apk`。
+1. 打开 [Releases](https://github.com/hei1345hei-hub/Glass-Workshop/releases/latest)，下载最新版 `C17-Glass-Workshop-v1.0.24.apk`。
 2. 允许浏览器或文件管理器安装未知来源应用。
 3. 安装后打开「C17 玻璃工坊」，在 KernelSU / Magisk 中授予 root 权限。
 
 ADB 安装：
 
 ```powershell
-adb install -r C17-Glass-Workshop-v1.0.23.apk
+adb install -r C17-Glass-Workshop-v1.0.24.apk
 ```
 
 最低系统为 Android 12（API 31），当前主要在 OnePlus / ColorOS V17 / Android 17 上测试。
@@ -73,7 +73,7 @@ adb install -r C17-Glass-Workshop-v1.0.23.apk
 
 ### 5. 重启系统作用域
 
-功能页「配置摘要」只有一个「重启作用域」按钮：点击写入配置并热重载参数，实时生效；仅在模块更新、首次应用、或检测到作用域进程未加载模块（如安全模式恢复后）时才重启对应进程，且两次 SystemUI 重启之间强制 90 秒冷却，避免频繁重启被 LSPosed 判定为崩溃循环而进入安全模式。首页 LSPosed 卡与关于页也提供「重启系统作用域」入口。
+功能页「配置摘要」只有一个「重启作用域」按钮：点击写入配置并同时重启 `com.android.systemui` 与 `com.android.launcher`，让两个作用域一起重新加载玻璃；两次重启之间强制 90 秒冷却，冷却内点击只写配置不重启，避免频繁重启被 LSPosed 判定为崩溃循环而进入安全模式。首页 LSPosed 卡与关于页也提供「重启系统作用域」入口。
 
 ### 6. 主题与日志
 

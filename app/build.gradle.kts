@@ -12,8 +12,8 @@ android {
         applicationId = "com.c17.glass"
         minSdk = 31
         targetSdk = 37
-        versionCode = 24
-        versionName = "1.0.23"
+        versionCode = 25
+        versionName = "1.0.24"
     }
 
     buildTypes {

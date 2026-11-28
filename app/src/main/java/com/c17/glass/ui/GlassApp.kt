@@ -143,7 +143,7 @@ fun GlassApp() {
         }
     }
 
-    /** 写入配置：参数默认热重载；仅模块更新或首次应用时重启两个作用域，并带冷却防 LSPosed 安全模式。 */
+    /** 写入配置后同时重启系统界面与系统桌面；90 秒冷却防 LSPosed 安全模式。 */
     fun restartScopesNow() {
         if (TweakState.applying) return
         scope.launch {
@@ -153,59 +153,32 @@ fun GlassApp() {
             val config = TweakState.toConfig()
             val changed = config.diffLabels(before)
             runCatching { AppPrefs.instance.saveConfig(config) }
-            val ctx = AppPrefs.instance.appContext
-            val loadedSysUi = LsposedRepository.isModuleLoadedIn(ctx, "com.android.systemui")
-            val loadedLauncher = LsposedRepository.isModuleLoadedIn(ctx, "com.android.launcher")
-            val ok = TweakEngine.apply(config, before, changed)
+            val ok = TweakEngine.apply(config, before, changed, restartLauncher = false)
             if (ok) {
-                val notLoaded = loadedSysUi == false
-                val needsSystemUi = TweakState.pendingSystemUiRestart || before == null || notLoaded
                 val now = SystemClock.elapsedRealtime()
                 val remain = SYSTEM_UI_RESTART_COOLDOWN_MS - (now - TweakState.lastSystemUiKillAt)
-                when {
-                    !needsSystemUi -> {
-                        if (loadedLauncher == false && !TweakState.lastApplyRestartedLauncher) {
-                            LsposedRepository.restartScopes(listOf("com.android.launcher"))
-                        }
-                        TweakState.scopeActionTip = "配置已写入并热重载，无需重启系统界面"
+                if (remain > 0) {
+                    val secs = remain / 1000 + 1
+                    TweakState.scopeActionTip = "配置已写入；距上次重启不足 90 秒，${secs}s 后再点才会重启两个作用域（防 LSPosed 安全模式）"
+                    LogRepository.log(
+                        LogLevel.WARN,
+                        "冷却中，本次未重启",
+                        "剩余 ${secs}s；配置已写入，冷却结束后点击即同时重启两个作用域"
+                    )
+                } else {
+                    val result = LsposedRepository.restartSystemUi()
+                    TweakState.lastSystemUiKillAt = SystemClock.elapsedRealtime()
+                    if (result.code == 0) {
+                        TweakState.scopeActionTip = "系统界面与系统桌面均已重启，等待重新载入"
                         LogRepository.log(
                             LogLevel.SUCCESS,
-                            "配置热重载",
-                            "参数实时生效；桌面按需重启，未重启 SystemUI"
+                            "重启作用域",
+                            "已同时重启系统界面与系统桌面，等待两个作用域重新加载"
                         )
-                    }
-                    remain > 0 -> {
-                        val secs = remain / 1000 + 1
-                        TweakState.scopeActionTip = "距上次重启系统界面不足 90 秒，本次跳过重启以避免 LSPosed 安全模式，请 ${secs}s 后再试"
-                        LogRepository.log(
-                            LogLevel.WARN,
-                            "跳过 SystemUI 重启",
-                            "冷却期未过（剩余 ${secs}s），配置已写入；频繁重启会被 LSPosed 判定为崩溃循环"
-                        )
-                    }
-                    else -> {
-                        val result = LsposedRepository.restartSystemUi()
-                        TweakState.lastSystemUiKillAt = SystemClock.elapsedRealtime()
-                        if (result.code == 0) {
-                            TweakState.scopeActionTip = if (notLoaded) {
-                                "检测到系统界面进程未加载模块（安全模式恢复或作用域刚勾选），已强制重启系统界面与桌面"
-                            } else {
-                                "系统界面与桌面已重启，请等待重新载入"
-                            }
-                            LogRepository.log(
-                                LogLevel.SUCCESS,
-                                "重启作用域",
-                                if (notLoaded) {
-                                    "SystemUI 进程未加载模块 APK，已强制重启两个作用域完成注入"
-                                } else {
-                                    "已同时重启系统界面与系统桌面，等待两个作用域重新加载"
-                                }
-                            )
-                        } else {
-                            TweakState.scopeActionTip = result.output.ifBlank { "重启失败" }
-                            LogRepository.log(LogLevel.ERROR, "重启作用域失败", result.output)
-                            launch { SafetyManager.watchAfterApply() }
-                        }
+                    } else {
+                        TweakState.scopeActionTip = result.output.ifBlank { "重启失败" }
+                        LogRepository.log(LogLevel.ERROR, "重启作用域失败", result.output)
+                        launch { SafetyManager.watchAfterApply() }
                     }
                 }
             }

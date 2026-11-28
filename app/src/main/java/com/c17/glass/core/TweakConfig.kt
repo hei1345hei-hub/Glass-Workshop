@@ -242,7 +242,6 @@ object TweakState {
     var pendingSystemUiRestart by mutableStateOf(false)
     var lastSystemUiKillAt by mutableStateOf(0L)
     var scopeActionTip by mutableStateOf<String?>(null)
-    var lastApplyRestartedLauncher by mutableStateOf(false)
 
     fun refreshPendingRestartFlag() {
         pendingSystemUiRestart = runCatching {
