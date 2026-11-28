@@ -16,15 +16,15 @@
 
 - 四栏结构：首页 / 功能 / 日志 / 关于
 - 功能页双入口：液态玻璃 / 状态栏
-- 液态玻璃覆盖控制中心、通知中心、音量条、桌面文件夹与 Dock 栏
-- 支持折射强度、控制中心模糊、桌面与 Dock 模糊、圆角半径与高光描边调节
+- 液态玻璃覆盖控制中心、通知中心、音量条、桌面文件夹、Dock 栏与负一屏顶栏（搜索框胶囊与环形按钮）
+- 支持折射强度、控制中心模糊、桌面与 Dock 模糊、音量条、负一屏顶栏模糊、圆角半径与高光描边调节
 - 状态栏支持 ColorOS / 仿 iOS 样式、电池/信号/静音/5G 布局与实时预览
 - 液态玻璃底部导航：blur、lens、vibrancy、按压折射
 - 左右滑动切换页面，底栏点击与 Pager 双向同步
 - 顶部状态栏沉浸式：内容滚动时可进入状态栏图标区域
 - root 状态、设备信息、ColorOS 版本检测
 - 配置写入 `/data/local/tmp/c17_glass/config.json`，支持热重载参数
-- LSPosed 模块识别：C17 模块状态、系统界面与系统桌面作用域状态、双端进程重启
+- LSPosed 模块识别：C17 模块状态、系统界面 / 系统桌面 / 负一屏作用域状态、三端进程重启
 - 首页 LSPosed 状态卡：快捷显示「已启用 / 未启用」，点按重新检测
 - 安全基线：应用前自动备份，失败自动回滚，功能页支持一键全部还原（含 SystemUI 与系统桌面）
 - 日志概览、级别筛选、时间线、清空与复制
@@ -33,14 +33,14 @@
 
 ## 下载与安装
 
-1. 打开 [Releases](https://github.com/hei1345hei-hub/Glass-Workshop/releases/latest)，下载最新版 `C17-Glass-Workshop-v1.0.24.apk`。
+1. 打开 [Releases](https://github.com/hei1345hei-hub/Glass-Workshop/releases/latest)，下载最新版 `C17-Glass-Workshop-v1.0.25.apk`。
 2. 允许浏览器或文件管理器安装未知来源应用。
 3. 安装后打开「C17 玻璃工坊」，在 KernelSU / Magisk 中授予 root 权限。
 
 ADB 安装：
 
 ```powershell
-adb install -r C17-Glass-Workshop-v1.0.24.apk
+adb install -r C17-Glass-Workshop-v1.0.25.apk
 ```
 
 最低系统为 Android 12（API 31），当前主要在 OnePlus / ColorOS V17 / Android 17 上测试。
@@ -53,7 +53,7 @@ adb install -r C17-Glass-Workshop-v1.0.24.apk
 
 ### 2. 启用 LSPosed 模块
 
-在 LSPosed 管理器中启用「C17 玻璃工坊」，并在推荐作用域中勾选 **系统界面**（`com.android.systemui`）与 **系统桌面**（`com.android.launcher`）。作用域只能在 LSPosed 内申请，App 只负责检测和回显，不会修改 LSPosed 配置。
+在 LSPosed 管理器中启用「C17 玻璃工坊」，并在推荐作用域中勾选 **系统界面**（`com.android.systemui`）、**系统桌面**（`com.android.launcher`）与 **Breeno 速览 / 负一屏**（`com.coloros.assistantscreen`）。作用域只能在 LSPosed 内申请，App 只负责检测和回显，不会修改 LSPosed 配置。
 
 ### 3. 调整状态栏
 

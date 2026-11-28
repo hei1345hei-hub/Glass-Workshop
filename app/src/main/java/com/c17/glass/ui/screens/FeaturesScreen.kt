@@ -109,7 +109,7 @@ fun FeaturesScreen(
                 FeatureEntryCard(
                     backdrop = backdrop,
                     title = "液态玻璃",
-                    subtitle = "控制/通知 · 桌面/Dock · 音量 · 全局浮窗",
+                    subtitle = "控制/通知 · 桌面/Dock · 音量 · 负一屏 · 全局浮窗",
                     icon = GlassIcons.Layers,
                     tint = colors.accent,
                     onClick = { section = FeatureSection.LIQUID }
@@ -134,6 +134,7 @@ fun FeaturesScreen(
                     TweakState.glassVolume,
                     TweakState.glassFolders,
                     TweakState.glassDock,
+                    TweakState.glassAssistant,
                     TweakState.applyGlobally
                 ).count { it }
                 GlassCard(backdrop) {
@@ -150,12 +151,12 @@ fun FeaturesScreen(
                                 fontWeight = FontWeight.SemiBold
                             )
                         )
-                        TagPill("范围 $glassSurfaces/6")
+                        TagPill("范围 $glassSurfaces/7")
                     }
                     Spacer(Modifier.height(8.dp))
                     BasicText(
                         "状态栏 开发中 · " +
-                            "玻璃范围 $glassSurfaces/6" +
+                            "玻璃范围 $glassSurfaces/7" +
                             (TweakState.lastAppliedAt?.let { " · 最近应用 $it" } ?: " · 尚未应用"),
                         style = TextStyle(
                             color = colors.inkMuted,
@@ -254,6 +255,14 @@ private fun LazyListScope.liquidGlassContent(
             )
             GlassDivider()
             ToggleRow(
+                title = "负一屏",
+                description = "仅顶栏搜索框与环形按钮，卡片保持原生",
+                selected = { TweakState.glassAssistant },
+                onSelect = { TweakState.glassAssistant = it },
+                backdrop = backdrop
+            )
+            GlassDivider()
+            ToggleRow(
                 title = "全局生效",
                 description = "对消息弹窗（横幅通知）、长按软件小浮窗、桌面卡片及系统其它模糊浮层生效",
                 selected = { TweakState.applyGlobally },
@@ -317,6 +326,25 @@ private fun LazyListScope.liquidGlassContent(
             onCornerChange = { TweakState.volumeCornerRadius = it },
             onHighlightChange = { TweakState.volumeHighlight = it },
             onRestoreDefault = { TweakState.restoreVolumeGlassDefaults() }
+        )
+    }
+
+    item { SectionTitle("负一屏顶栏", trailing = "ASSISTANT") }
+
+    item {
+        GlassParamGroupCard(
+            backdrop = backdrop,
+            refraction = TweakState.assistantRefraction,
+            blurRadius = TweakState.assistantBlurRadius,
+            blurRange = 1f..24f,
+            cornerRadius = TweakState.assistantCornerRadius,
+            highlight = TweakState.assistantHighlight,
+            defaultSummary = "固定默认：折射 76% · 模糊 6dp · 圆角 24dp · 高光开（低模糊高折射）",
+            onRefractionChange = { TweakState.assistantRefraction = it },
+            onBlurChange = { TweakState.assistantBlurRadius = it },
+            onCornerChange = { TweakState.assistantCornerRadius = it },
+            onHighlightChange = { TweakState.assistantHighlight = it },
+            onRestoreDefault = { TweakState.restoreAssistantGlassDefaults() }
         )
     }
 }
@@ -787,9 +815,9 @@ private fun ApplyCard(
         Spacer(Modifier.height(8.dp))
         BasicText(
             if (needsUiRestart) {
-                "检测到模块已更新：点击写入配置并同时重启系统界面与系统桌面（90 秒冷却，防 LSPosed 安全模式）。"
+                "检测到模块已更新：点击写入配置并同时重启系统界面、系统桌面与负一屏（90 秒冷却，防 LSPosed 安全模式）。"
             } else {
-                "点击写入配置并同时重启系统界面与系统桌面，两个作用域一起加载玻璃（90 秒冷却防安全模式）。"
+                "点击写入配置并同时重启系统界面、系统桌面与负一屏，各作用域一起加载玻璃（90 秒冷却防安全模式）。"
             },
             style = TextStyle(
                 color = if (needsUiRestart) colors.warn else colors.inkDim,

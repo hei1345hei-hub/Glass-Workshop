@@ -35,6 +35,7 @@ data class TweakConfig(
     val glassVolume: Boolean = DEFAULT_GLASS_VOLUME,
     val glassFolders: Boolean = DEFAULT_GLASS_FOLDERS,
     val glassDock: Boolean = DEFAULT_GLASS_DOCK,
+    val glassAssistant: Boolean = DEFAULT_GLASS_ASSISTANT,
     val applyGlobally: Boolean = DEFAULT_APPLY_GLOBALLY,
     // 第 1 类：控制中心与通知中心
     val refraction: Float = DEFAULT_REFRACTION,
@@ -50,7 +51,12 @@ data class TweakConfig(
     val volumeRefraction: Float = DEFAULT_VOLUME_REFRACTION,
     val volumeBlurRadius: Float = DEFAULT_VOLUME_BLUR_RADIUS,
     val volumeHighlight: Boolean = DEFAULT_VOLUME_HIGHLIGHT,
-    val volumeCornerRadius: Float = DEFAULT_VOLUME_CORNER_RADIUS
+    val volumeCornerRadius: Float = DEFAULT_VOLUME_CORNER_RADIUS,
+    // 第 4 类：负一屏毛玻璃盒子（低模糊 + 高折射）
+    val assistantRefraction: Float = DEFAULT_ASSISTANT_REFRACTION,
+    val assistantBlurRadius: Float = DEFAULT_ASSISTANT_BLUR_RADIUS,
+    val assistantHighlight: Boolean = DEFAULT_ASSISTANT_HIGHLIGHT,
+    val assistantCornerRadius: Float = DEFAULT_ASSISTANT_CORNER_RADIUS
 ) {
 
     /** 与上一次已确认的配置相比，哪些选项被改动过（用于崩溃时精确提示）。 */
@@ -75,6 +81,7 @@ data class TweakConfig(
         if (glassVolume != other.glassVolume) out += "音量条玻璃"
         if (glassFolders != other.glassFolders) out += "文件夹玻璃"
         if (glassDock != other.glassDock) out += "Dock 栏玻璃"
+        if (glassAssistant != other.glassAssistant) out += "负一屏"
         if (applyGlobally != other.applyGlobally) out += "全局生效"
         if (refraction != other.refraction) out += "控制/通知折射"
         if (blurRadius != other.blurRadius) out += "控制/通知模糊"
@@ -88,6 +95,10 @@ data class TweakConfig(
         if (volumeBlurRadius != other.volumeBlurRadius) out += "音量条模糊"
         if (volumeHighlight != other.volumeHighlight) out += "音量条高光"
         if (volumeCornerRadius != other.volumeCornerRadius) out += "音量条圆角"
+        if (assistantRefraction != other.assistantRefraction) out += "负一屏折射"
+        if (assistantBlurRadius != other.assistantBlurRadius) out += "负一屏模糊"
+        if (assistantHighlight != other.assistantHighlight) out += "负一屏高光"
+        if (assistantCornerRadius != other.assistantCornerRadius) out += "负一屏圆角"
         return out
     }
 
@@ -112,6 +123,7 @@ data class TweakConfig(
         put("glassVolume", glassVolume)
         put("glassFolders", glassFolders)
         put("glassDock", glassDock)
+        put("glassAssistant", glassAssistant)
         put("applyGlobally", applyGlobally)
         put("refraction", refraction.toDouble())
         put("blurRadius", blurRadius.toDouble())
@@ -125,6 +137,10 @@ data class TweakConfig(
         put("volumeBlurRadius", volumeBlurRadius.toDouble())
         put("volumeHighlight", volumeHighlight)
         put("volumeCornerRadius", volumeCornerRadius.toDouble())
+        put("assistantRefraction", assistantRefraction.toDouble())
+        put("assistantBlurRadius", assistantBlurRadius.toDouble())
+        put("assistantHighlight", assistantHighlight)
+        put("assistantCornerRadius", assistantCornerRadius.toDouble())
     }.toString(2)
 
     companion object {
@@ -137,6 +153,7 @@ data class TweakConfig(
         const val DEFAULT_GLASS_VOLUME = true
         const val DEFAULT_GLASS_FOLDERS = true
         const val DEFAULT_GLASS_DOCK = true
+        const val DEFAULT_GLASS_ASSISTANT = true
         const val DEFAULT_APPLY_GLOBALLY = true
 
         const val DEFAULT_REFRACTION = 0.58f
@@ -153,6 +170,11 @@ data class TweakConfig(
         const val DEFAULT_VOLUME_BLUR_RADIUS = 16f
         const val DEFAULT_VOLUME_HIGHLIGHT = true
         const val DEFAULT_VOLUME_CORNER_RADIUS = 26f
+
+        const val DEFAULT_ASSISTANT_REFRACTION = 0.76f
+        const val DEFAULT_ASSISTANT_BLUR_RADIUS = 6f
+        const val DEFAULT_ASSISTANT_HIGHLIGHT = true
+        const val DEFAULT_ASSISTANT_CORNER_RADIUS = 24f
 
         /** 还原快照用；解析失败返回 null，交给上层走「全部还原」兜底。 */
         fun fromJson(text: String): TweakConfig? = runCatching {
@@ -182,6 +204,7 @@ data class TweakConfig(
                 glassVolume = o.optBoolean("glassVolume", DEFAULT_GLASS_VOLUME),
                 glassFolders = o.optBoolean("glassFolders", DEFAULT_GLASS_FOLDERS),
                 glassDock = o.optBoolean("glassDock", DEFAULT_GLASS_DOCK),
+                glassAssistant = o.optBoolean("glassAssistant", DEFAULT_GLASS_ASSISTANT),
                 applyGlobally = o.optBoolean("applyGlobally", DEFAULT_APPLY_GLOBALLY),
                 refraction = baseRefraction,
                 blurRadius = baseBlur,
@@ -194,7 +217,11 @@ data class TweakConfig(
                 volumeRefraction = o.optDouble("volumeRefraction", baseRefraction.toDouble()).toFloat(),
                 volumeBlurRadius = o.optDouble("volumeBlurRadius", DEFAULT_VOLUME_BLUR_RADIUS.toDouble()).toFloat(),
                 volumeHighlight = o.optBoolean("volumeHighlight", baseHighlight),
-                volumeCornerRadius = o.optDouble("volumeCornerRadius", baseCorner.toDouble()).toFloat()
+                volumeCornerRadius = o.optDouble("volumeCornerRadius", baseCorner.toDouble()).toFloat(),
+                assistantRefraction = o.optDouble("assistantRefraction", DEFAULT_ASSISTANT_REFRACTION.toDouble()).toFloat(),
+                assistantBlurRadius = o.optDouble("assistantBlurRadius", DEFAULT_ASSISTANT_BLUR_RADIUS.toDouble()).toFloat(),
+                assistantHighlight = o.optBoolean("assistantHighlight", DEFAULT_ASSISTANT_HIGHLIGHT),
+                assistantCornerRadius = o.optDouble("assistantCornerRadius", DEFAULT_ASSISTANT_CORNER_RADIUS.toDouble()).toFloat()
             )
         }.getOrNull()
     }
@@ -220,6 +247,7 @@ object TweakState {
     var glassVolume by mutableStateOf(TweakConfig.DEFAULT_GLASS_VOLUME)
     var glassFolders by mutableStateOf(TweakConfig.DEFAULT_GLASS_FOLDERS)
     var glassDock by mutableStateOf(TweakConfig.DEFAULT_GLASS_DOCK)
+    var glassAssistant by mutableStateOf(TweakConfig.DEFAULT_GLASS_ASSISTANT)
     var applyGlobally by mutableStateOf(TweakConfig.DEFAULT_APPLY_GLOBALLY)
 
     var refraction by mutableFloatStateOf(TweakConfig.DEFAULT_REFRACTION)
@@ -236,6 +264,11 @@ object TweakState {
     var volumeBlurRadius by mutableFloatStateOf(TweakConfig.DEFAULT_VOLUME_BLUR_RADIUS)
     var volumeHighlight by mutableStateOf(TweakConfig.DEFAULT_VOLUME_HIGHLIGHT)
     var volumeCornerRadius by mutableFloatStateOf(TweakConfig.DEFAULT_VOLUME_CORNER_RADIUS)
+
+    var assistantRefraction by mutableFloatStateOf(TweakConfig.DEFAULT_ASSISTANT_REFRACTION)
+    var assistantBlurRadius by mutableFloatStateOf(TweakConfig.DEFAULT_ASSISTANT_BLUR_RADIUS)
+    var assistantHighlight by mutableStateOf(TweakConfig.DEFAULT_ASSISTANT_HIGHLIGHT)
+    var assistantCornerRadius by mutableFloatStateOf(TweakConfig.DEFAULT_ASSISTANT_CORNER_RADIUS)
 
     var applying by mutableStateOf(false)
     var lastAppliedAt by mutableStateOf<String?>(null)
@@ -273,6 +306,14 @@ object TweakState {
         volumeCornerRadius = TweakConfig.DEFAULT_VOLUME_CORNER_RADIUS
     }
 
+    /** 恢复「负一屏顶栏」固定默认参数（低模糊 + 高折射）。 */
+    fun restoreAssistantGlassDefaults() {
+        assistantRefraction = TweakConfig.DEFAULT_ASSISTANT_REFRACTION
+        assistantBlurRadius = TweakConfig.DEFAULT_ASSISTANT_BLUR_RADIUS
+        assistantHighlight = TweakConfig.DEFAULT_ASSISTANT_HIGHLIGHT
+        assistantCornerRadius = TweakConfig.DEFAULT_ASSISTANT_CORNER_RADIUS
+    }
+
     fun toConfig(): TweakConfig = TweakConfig(
         clockSeconds = clockSeconds,
         centerClock = centerClock,
@@ -292,6 +333,7 @@ object TweakState {
         glassVolume = glassVolume,
         glassFolders = glassFolders,
         glassDock = glassDock,
+        glassAssistant = glassAssistant,
         applyGlobally = applyGlobally,
         refraction = refraction,
         blurRadius = blurRadius,
@@ -304,7 +346,11 @@ object TweakState {
         volumeRefraction = volumeRefraction,
         volumeBlurRadius = volumeBlurRadius,
         volumeHighlight = volumeHighlight,
-        volumeCornerRadius = volumeCornerRadius
+        volumeCornerRadius = volumeCornerRadius,
+        assistantRefraction = assistantRefraction,
+        assistantBlurRadius = assistantBlurRadius,
+        assistantHighlight = assistantHighlight,
+        assistantCornerRadius = assistantCornerRadius
     )
 
     fun applyConfig(config: TweakConfig) {
@@ -326,6 +372,7 @@ object TweakState {
         glassVolume = config.glassVolume
         glassFolders = config.glassFolders
         glassDock = config.glassDock
+        glassAssistant = config.glassAssistant
         applyGlobally = config.applyGlobally
         refraction = config.refraction
         blurRadius = config.blurRadius
@@ -339,6 +386,10 @@ object TweakState {
         volumeBlurRadius = config.volumeBlurRadius
         volumeHighlight = config.volumeHighlight
         volumeCornerRadius = config.volumeCornerRadius
+        assistantRefraction = config.assistantRefraction
+        assistantBlurRadius = config.assistantBlurRadius
+        assistantHighlight = config.assistantHighlight
+        assistantCornerRadius = config.assistantCornerRadius
     }
 
     fun reset() = applyConfig(TweakConfig())
@@ -410,6 +461,7 @@ class SettingsStore(context: Context) {
             glassVolume = prefs.getBoolean("glass_volume", prefs.getBoolean("apply_globally", TweakConfig.DEFAULT_GLASS_VOLUME)),
             glassFolders = prefs.getBoolean("glass_folders", TweakConfig.DEFAULT_GLASS_FOLDERS),
             glassDock = prefs.getBoolean("glass_dock", TweakConfig.DEFAULT_GLASS_DOCK),
+            glassAssistant = prefs.getBoolean("glass_assistant", TweakConfig.DEFAULT_GLASS_ASSISTANT),
             applyGlobally = prefs.getBoolean("apply_globally", TweakConfig.DEFAULT_APPLY_GLOBALLY),
             refraction = refractionVal,
             blurRadius = blurVal,
@@ -422,7 +474,11 @@ class SettingsStore(context: Context) {
             volumeRefraction = prefs.getFloat("volume_refraction", refractionVal),
             volumeBlurRadius = prefs.getFloat("volume_blur_radius", TweakConfig.DEFAULT_VOLUME_BLUR_RADIUS),
             volumeHighlight = prefs.getBoolean("volume_highlight", highlightVal),
-            volumeCornerRadius = prefs.getFloat("volume_corner_radius", cornerVal)
+            volumeCornerRadius = prefs.getFloat("volume_corner_radius", cornerVal),
+            assistantRefraction = prefs.getFloat("assistant_refraction", TweakConfig.DEFAULT_ASSISTANT_REFRACTION),
+            assistantBlurRadius = prefs.getFloat("assistant_blur_radius", TweakConfig.DEFAULT_ASSISTANT_BLUR_RADIUS),
+            assistantHighlight = prefs.getBoolean("assistant_highlight", highlightVal),
+            assistantCornerRadius = prefs.getFloat("assistant_corner_radius", TweakConfig.DEFAULT_ASSISTANT_CORNER_RADIUS)
         )
     }
 
@@ -447,6 +503,7 @@ class SettingsStore(context: Context) {
             .putBoolean("glass_volume", config.glassVolume)
             .putBoolean("glass_folders", config.glassFolders)
             .putBoolean("glass_dock", config.glassDock)
+            .putBoolean("glass_assistant", config.glassAssistant)
             .putBoolean("apply_globally", config.applyGlobally)
             .putFloat("refraction", config.refraction)
             .putFloat("blur_radius", config.blurRadius)
@@ -460,6 +517,10 @@ class SettingsStore(context: Context) {
             .putFloat("volume_blur_radius", config.volumeBlurRadius)
             .putBoolean("volume_highlight", config.volumeHighlight)
             .putFloat("volume_corner_radius", config.volumeCornerRadius)
+            .putFloat("assistant_refraction", config.assistantRefraction)
+            .putFloat("assistant_blur_radius", config.assistantBlurRadius)
+            .putBoolean("assistant_highlight", config.assistantHighlight)
+            .putFloat("assistant_corner_radius", config.assistantCornerRadius)
             .apply()
     }
 

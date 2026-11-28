@@ -319,6 +319,7 @@ object SafetyManager {
         clearPending()
         RootShell.exec(C17Commands.RESTART_SYSTEMUI, 10_000L)
         RootShell.exec(C17Commands.RESTART_LAUNCHER, 8_000L)
+        RootShell.exec(C17Commands.RESTART_ASSISTANT, 8_000L)
         if (!waitForSystemUi()) {
             LogRepository.log(LogLevel.WARN, "SystemUI 未在预期时间内恢复", "继续观察")
         }
@@ -826,7 +827,7 @@ object SafetyManager {
                 }
             }
             appendLine()
-            appendLine("kill -TERM \$(pidof com.android.systemui com.coloros.systemui com.android.launcher 2>/dev/null) 2>/dev/null || true")
+            appendLine("kill -TERM \$(pidof com.android.systemui com.coloros.systemui com.android.launcher com.coloros.assistantscreen 2>/dev/null) 2>/dev/null || true")
             appendLine("if [ \"\$fail\" -eq 0 ]; then")
             appendLine("  rm -f \"\$BASE/pending\"")
             appendLine("  mkdir -p ${quote(C17Commands.CONFIG_DIR)}")

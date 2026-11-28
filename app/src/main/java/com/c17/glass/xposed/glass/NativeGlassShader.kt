@@ -117,6 +117,18 @@ internal object NativeGlassShader {
                     highlight = config.volumeHighlight,
                     cornerRadius = config.volumeCornerRadius
                 )
+
+            fun fromAssistant(
+                config: HookConfig,
+                surfaceEnabled: Boolean = config.hasAssistantGlass
+            ): GlassShaderParams =
+                fromValues(
+                    surfaceEnabled = surfaceEnabled,
+                    refraction = config.assistantRefraction,
+                    blurRadius = config.assistantBlurRadius,
+                    highlight = config.assistantHighlight,
+                    cornerRadius = config.assistantCornerRadius
+                )
         }
     }
 

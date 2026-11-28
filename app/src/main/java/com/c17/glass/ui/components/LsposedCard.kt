@@ -81,11 +81,21 @@ fun LsposedCard(
     val c17Module = current?.c17Module
     val systemScopeGranted = current?.systemScopeGranted == true
     val launcherScopeGranted = current?.launcherScopeGranted == true
-    val allScopesGranted = systemScopeGranted && launcherScopeGranted
+    val assistantScopeGranted = current?.assistantScopeGranted == true
+    val allScopesGranted = systemScopeGranted && launcherScopeGranted && assistantScopeGranted
+    val grantedLabels = buildList {
+        if (systemScopeGranted) add("系统界面")
+        if (launcherScopeGranted) add("系统桌面")
+        if (assistantScopeGranted) add("负一屏")
+    }
+    val missingLabels = buildList {
+        if (!systemScopeGranted) add("系统界面")
+        if (!launcherScopeGranted) add("系统桌面")
+        if (!assistantScopeGranted) add("负一屏")
+    }
     val scopeStatusText = when {
-        allScopesGranted -> "已申请 · 系统界面 + 系统桌面"
-        systemScopeGranted -> "系统界面已勾选（缺系统桌面）"
-        launcherScopeGranted -> "系统桌面已勾选（缺系统界面）"
+        allScopesGranted -> "已申请 · ${grantedLabels.joinToString(" + ")}"
+        grantedLabels.isNotEmpty() -> "${grantedLabels.joinToString(" + ")}已勾选（缺${missingLabels.joinToString("、")}）"
         else -> "未申请"
     }
     val canRestart = !loading && !restarting && current?.installed == true
@@ -167,7 +177,7 @@ fun LsposedCard(
 
             Spacer(Modifier.height(6.dp))
             BasicText(
-                "先在 LSPosed 里启用「C17 玻璃工坊」，并在推荐应用里勾选「系统界面」和「系统桌面」；本页只检测状态，不修改 LSPosed 配置。",
+                "先在 LSPosed 里启用「C17 玻璃工坊」，并在推荐应用里勾选「系统界面」「系统桌面」和「Breeno 速览」（负一屏）；本页只检测状态，不修改 LSPosed 配置。",
                 style = TextStyle(color = colors.inkDim, fontSize = 11.sp, lineHeight = 15.sp)
             )
 
@@ -180,11 +190,11 @@ fun LsposedCard(
                             val result = LsposedRepository.restartSystemUi()
                             restarting = false
                             if (result.code == 0) {
-                                message = "系统界面与系统桌面已重启"
+                                message = "系统界面、系统桌面与负一屏已重启"
                                 LogRepository.log(
                                     LogLevel.SUCCESS,
                                     "重启系统作用域",
-                                    "已重启 com.android.systemui 与 com.android.launcher，等待系统重新拉起"
+                                    "已重启 com.android.systemui、com.android.launcher 与 com.coloros.assistantscreen，等待系统重新拉起"
                                 )
                             } else {
                                 message = result.output.ifBlank { "重启失败" }

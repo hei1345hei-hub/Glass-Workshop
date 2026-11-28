@@ -35,9 +35,11 @@ class HookConfig(private val json: JSONObject?) {
     val glassVolume: Boolean get() = bool("glassVolume", true)
     val glassFolders: Boolean get() = bool("glassFolders", true)
     val glassDock: Boolean get() = bool("glassDock", true)
+    val glassAssistant: Boolean get() = bool("glassAssistant", true)
     val applyGlobally: Boolean get() = bool("applyGlobally", true)
     val hasSystemUiGlass: Boolean get() = glassControlCenter || glassNotifications || glassVolume || applyGlobally
     val hasLauncherGlass: Boolean get() = glassFolders || glassDock || applyGlobally
+    val hasAssistantGlass: Boolean get() = glassAssistant
 
     // 第 1 类：控制中心与通知中心
     val refraction: Float get() = number("refraction", 0.58f)
@@ -56,6 +58,12 @@ class HookConfig(private val json: JSONObject?) {
     val volumeBlurRadius: Float get() = number("volumeBlurRadius", 16f)
     val volumeHighlight: Boolean get() = bool("volumeHighlight", highlight)
     val volumeCornerRadius: Float get() = number("volumeCornerRadius", cornerRadius)
+
+    // 第 4 类：负一屏毛玻璃盒子（低模糊 + 高折射）
+    val assistantRefraction: Float get() = number("assistantRefraction", 0.76f)
+    val assistantBlurRadius: Float get() = number("assistantBlurRadius", 6f)
+    val assistantHighlight: Boolean get() = bool("assistantHighlight", highlight)
+    val assistantCornerRadius: Float get() = number("assistantCornerRadius", 24f)
 
     /** 5G / 网络类型标识是否要挪到电量旁（iPhone 风格）。 */
     val networkTypeBesideBattery: Boolean get() = ios5gPosition.equals("BATTERY", ignoreCase = true)

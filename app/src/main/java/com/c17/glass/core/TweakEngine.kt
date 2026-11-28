@@ -47,6 +47,11 @@ object C17Commands {
     const val RESTART_LAUNCHER =
         "for p in \$(pidof com.android.launcher 2>/dev/null); do " +
             "kill -TERM \"\$p\" 2>/dev/null; done"
+
+    /** 重启负一屏进程（独立作用域，不影响 SystemUI）。 */
+    const val RESTART_ASSISTANT =
+        "for p in \$(pidof com.coloros.assistantscreen 2>/dev/null); do " +
+            "kill -TERM \"\$p\" 2>/dev/null; done"
 }
 
 data class TweakStep(
@@ -80,6 +85,11 @@ object TweakEngine {
             label = "桌面文件夹与 Dock 栏",
             command = null,
             note = "文件夹=${config.glassFolders}, Dock=${config.glassDock}, 全局=${config.applyGlobally}（含消息弹窗与长按应用浮窗）"
+        ),
+        TweakStep(
+            label = "负一屏液态玻璃",
+            command = null,
+            note = if (config.glassAssistant) "折射 ${(config.assistantRefraction * 100).toInt()}% · 模糊 ${config.assistantBlurRadius.toInt()}dp · 圆角 ${config.assistantCornerRadius.toInt()}dp" else "负一屏保持原生毛玻璃"
         ),
         TweakStep(
             label = "控制/通知参数",
@@ -191,6 +201,17 @@ object TweakEngine {
         ) {
             RootShell.exec(C17Commands.RESTART_LAUNCHER, 8_000L)
         }
+        val prevAssistantEnabled = before?.glassAssistant == true
+        if (restartLauncher && writeResult.ok && (
+                !hadActiveConfigFile ||
+                    before == null ||
+                    changed.isEmpty() ||
+                    "负一屏" in changed ||
+                    (!prevAssistantEnabled && config.glassAssistant)
+                )
+        ) {
+            RootShell.exec(C17Commands.RESTART_ASSISTANT, 8_000L)
+        }
 
         val systemUiAlive = if (!writeResult.ok) {
             false
@@ -264,6 +285,7 @@ object TweakEngine {
         "音量条玻璃",
         "文件夹玻璃",
         "Dock 栏玻璃",
+        "负一屏",
         "全局生效",
         "控制/通知折射",
         "控制/通知模糊",
@@ -276,6 +298,10 @@ object TweakEngine {
         "音量条折射",
         "音量条模糊",
         "音量条高光",
-        "音量条圆角"
+        "音量条圆角",
+        "负一屏折射",
+        "负一屏模糊",
+        "负一屏高光",
+        "负一屏圆角"
     )
 }

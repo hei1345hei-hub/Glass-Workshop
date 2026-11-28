@@ -11,6 +11,7 @@ import java.io.File
 private const val C17_MODULE_PACKAGE = "dev.puitheme.iosstatusbar"
 private val SYSTEM_SCOPE_PACKAGES = setOf("com.android.systemui", "system", "android")
 private val LAUNCHER_SCOPE_PACKAGES = setOf("com.android.launcher")
+private val ASSISTANT_SCOPE_PACKAGES = setOf("com.coloros.assistantscreen")
 
 data class LsposedScope(
     val packageName: String,
@@ -45,6 +46,10 @@ data class LsposedInfo(
     /** 是否已经在 LSPosed 里给 C17 模块勾选了系统桌面作用域。 */
     val launcherScopeGranted: Boolean
         get() = c17Module?.scopes.orEmpty().any { it.packageName in LAUNCHER_SCOPE_PACKAGES }
+
+    /** 是否已经在 LSPosed 里给 C17 模块勾选了负一屏（Breeno 速览）作用域。 */
+    val assistantScopeGranted: Boolean
+        get() = c17Module?.scopes.orEmpty().any { it.packageName in ASSISTANT_SCOPE_PACKAGES }
 }
 
 /**
@@ -300,15 +305,18 @@ object LsposedRepository {
             .forEach { runCatching { it.delete() } }
     }
 
-    /** 重启系统界面与系统桌面进程，让两个作用域重新注入。 */
+    /** 重启系统界面、系统桌面与负一屏进程，让各作用域重新注入。 */
     suspend fun restartSystemUi(): ShellResult {
         SafetyManager.cancelWatchForManualRestart()
-        val output = RootShell.exec("pidof com.android.systemui com.android.launcher", 8_000L).stdout
+        val output = RootShell.exec(
+            "pidof com.android.systemui com.android.launcher com.coloros.assistantscreen",
+            8_000L
+        ).stdout
         val pids = output.split(' ', '\n')
             .map { it.trim() }
             .filter { it.isNotEmpty() && it.all(Char::isDigit) }
         if (pids.isEmpty()) {
-            return ShellResult(1, "", "未找到系统界面或系统桌面进程")
+            return ShellResult(1, "", "未找到系统界面、系统桌面或负一屏进程")
         }
         val res = RootShell.exec("kill -TERM ${pids.joinToString(" ")}; echo done", 8_000L)
         if (res.code == 0) {

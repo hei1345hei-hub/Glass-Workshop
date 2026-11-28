@@ -169,11 +169,11 @@ fun GlassApp() {
                     val result = LsposedRepository.restartSystemUi()
                     TweakState.lastSystemUiKillAt = SystemClock.elapsedRealtime()
                     if (result.code == 0) {
-                        TweakState.scopeActionTip = "系统界面与系统桌面均已重启，等待重新载入"
+                        TweakState.scopeActionTip = "系统界面、系统桌面与负一屏均已重启，等待重新载入"
                         LogRepository.log(
                             LogLevel.SUCCESS,
                             "重启作用域",
-                            "已同时重启系统界面与系统桌面，等待两个作用域重新加载"
+                            "已同时重启系统界面、系统桌面与负一屏，等待各作用域重新加载"
                         )
                     } else {
                         TweakState.scopeActionTip = result.output.ifBlank { "重启失败" }
